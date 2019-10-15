@@ -23,30 +23,28 @@ J-Engine is a tiny terrain render engine I've built over the past ~6 weeks in or
 ```
 └───J-Engine
     ├───cmake
-    ├───executable
-    │   ├───images
-    │   │   └───textures
-    │   └───shaderfiles
-    ├───images
-    │   └───textures
-    ├───include
-    │   ├───assimp
-    │   │   └───Compiler
-    │   ├───glad
-    │   ├───GLFW
-    │   ├───glm
-    │   │   ├───detail
-    │   │   ├───gtc
-    │   │   ├───gtx
-    │   │   └───simd
-    │   ├───imgui
-    │   └───KHR
-    ├───lib
-    │   └───assimp
-    ├───screenshots
-    ├───shaderfiles
-    ├───src
-    └───thirdparty
+	├───executable
+	├───images
+	│   ├───sphere
+	│   └───textures
+	├───include
+	│   ├───assimp
+	│   │   └───Compiler
+	│   ├───glad
+	│   ├───GLFW
+	│   ├───glm
+	│   │   ├───detail
+	│   │   ├───gtc
+	│   │   ├───gtx
+	│   │   └───simd
+	│   ├───imgui
+	│   └───KHR
+	├───lib
+	│   └───assimp
+	├───screenshots
+	├───shaderfiles
+	├───src
+	└───thirdparty
 ```
 
 ## How to build (using cmake)
