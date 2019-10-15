@@ -57,4 +57,3 @@ Additionally, a stand-alone executable is included in the folder [executable](ht
 * [Basics of OpenGL](https://learnopengl.com/)
 * [OpenGL cookbooks](https://www.google.com/search?q=opengl+cookbook&sxsrf=ACYBGNTCLk4F9Zb9sgre8FbZblqyFuXLLQ:1571147116903&source=lnms&sa=X&ved=0ahUKEwj10quOs57lAhUP-aQKHWWMCu4Q_AUIDSgA&biw=1517&bih=741&dpr=0.9)
 * [GPU Gems - all editions](https://developer.nvidia.com/gpugems/GPUGems/gpugems_pref01.html)
-###### ...and a lot of googling obviously!
