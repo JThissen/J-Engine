@@ -4,7 +4,7 @@
 J-Engine is a tiny terrain render engine I've built over the past ~6 weeks in order to get accustomed to the OpenGL rendering pipeline.
 
 ## Features
-* Prodecural terrain
+* Procedural terrain
 * Water simulation based on a summation of Gerstner waves
 * Shadows
 * Fog
