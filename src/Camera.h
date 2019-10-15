@@ -16,6 +16,7 @@ public:
 	bool		previouslyPressed_locked;
 	bool		previouslyPressed_cursor;
 	bool		lock;
+	bool		cursor;
 	float		previousX;
 	float		previousY;
 	float		yaw;

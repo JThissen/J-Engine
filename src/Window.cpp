@@ -24,7 +24,7 @@ Window::Window(const std::string windowName, const std::string glsl_version)
 
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);	
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);	
 }
 
 Window::~Window()

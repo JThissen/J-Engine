@@ -14,6 +14,7 @@ Camera::Camera(const int windowWidth, const int windowHeight, float velocity)
 	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	lock = false;
+	cursor = false;
 }
 
 void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -28,6 +29,11 @@ void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 void Camera::cursorCallback(GLFWwindow * window, double xpos, double ypos)
 {
+	if (cursor)
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	else
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	if (!lock)
 	{
 		float xposf = (float)xpos;
@@ -74,6 +80,7 @@ void Camera::processInput(GLFWwindow* window, float deltaTime)
 
 	Fill(window);
 	Lock(window);
+	ShowCursor(window);
 
 	float velocity = 10.0f;
 	float distance = deltaTime * velocity;
@@ -118,7 +125,7 @@ void Camera::ShowCursor(GLFWwindow* window)
 	bool currentlyPressed = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
 
 	if (currentlyPressed && !previouslyPressed_cursor)
-		Helpers::Globals::showCursor = !Helpers::Globals::showCursor;
+		cursor = !cursor;
 
 	previouslyPressed_cursor = currentlyPressed;
 }

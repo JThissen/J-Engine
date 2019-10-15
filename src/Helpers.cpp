@@ -60,7 +60,7 @@ namespace Helpers
 			ImGui::Begin("Terrain & Lighting settings");
 			ImGui::SetWindowCollapsed(false);
 			ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
-			ImGui::SetWindowSize(ImVec2(static_cast<float>(windowWidth) * 0.25f, static_cast<float>(windowHeight) * 0.4f));
+			ImGui::SetWindowSize(ImVec2(std::min(static_cast<float>(windowWidth) * 0.25f, 350.0f), static_cast<float>(windowHeight) * 0.4f));
 
 			if (ImGui::CollapsingHeader("Terrain"))
 			{
@@ -134,7 +134,8 @@ namespace Helpers
 			}
 
 			ImGui::Dummy(ImVec2(0.0f, 10.0f));
-			ImGui::Text("Press E to lock the camera.");
+			ImGui::Text("Press E to unlock/lock the camera.");
+			ImGui::Text("Press R to show/hide the camera.");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS).", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
@@ -147,7 +148,7 @@ namespace Helpers
 			ImGui::Begin("Water settings");
 			ImGui::SetWindowCollapsed(false);
 			ImGui::SetWindowPos(ImVec2(0.0f, static_cast<float>(windowHeight) * 0.4f));
-			ImGui::SetWindowSize(ImVec2(static_cast<float>(windowWidth) * 0.25f, static_cast<float>(windowHeight * 0.4f)));
+			ImGui::SetWindowSize(ImVec2(std::min(static_cast<float>(windowWidth) * 0.25f, 350.0f), static_cast<float>(windowHeight * 0.4f)));
 
 			if (ImGui::CollapsingHeader("Water"))
 			{
@@ -188,7 +189,7 @@ namespace Helpers
 			ImGui::Begin("SSAO settings");
 			ImGui::SetWindowCollapsed(false);
 			ImGui::SetWindowPos(ImVec2(0.0f, static_cast<float>(windowHeight) * 0.8f));
-			ImGui::SetWindowSize(ImVec2(static_cast<float>(windowWidth) * 0.25f, static_cast<float>(windowHeight * 0.2f)));
+			ImGui::SetWindowSize(ImVec2(std::min(static_cast<float>(windowWidth) * 0.25f, 350.0f), static_cast<float>(windowHeight * 0.2f)));
 
 			if (ImGui::CollapsingHeader("SSAO"))
 			{
