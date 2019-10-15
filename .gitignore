@@ -352,5 +352,3 @@ MigrationBackup/
 .ionide/
 
 #temp ignores
-Include/
-lib/
