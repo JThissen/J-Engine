@@ -73,7 +73,7 @@ cmake ..
 
 ## .Exe
 
-Additionally, a stand-alone executable is included in the folder [executable](https://github.com/JThissen/J-Engine/tree/master/executable).
+Additionally, a stand-alone executable is included in the [executable](https://github.com/JThissen/J-Engine/tree/master/executable) folder.
 
 ## A bunch of helpful resources
 
