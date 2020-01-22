@@ -47,7 +47,7 @@ J-Engine is a tiny terrain render engine I've built over the past ~6 weeks in or
 	└───thirdparty
 ```
 
-## How to build (using cmake)
+## How to use
 
 Launch your favorite terminal and clone the github repository using:
 
@@ -55,7 +55,11 @@ Launch your favorite terminal and clone the github repository using:
 git clone https://github.com/JThissen/J-Engine.git
 ```
 
-Next, create a build folder in the J-Engine directory and change the current working directory to the newly created build folder:
+Next, run the solution (.sln) and build the project.
+
+### cmake
+
+Create a build folder in the JEngine directory (project directory) and change the current working directory to the newly created build folder:
 
 ```
 mkdir build
@@ -70,6 +74,8 @@ Lastly, run cmake to build the solution using:
 ```
 cmake ..
 ```
+
+Finally, run the generated solution (.sln) and build the project.
 
 ## .Exe
 
