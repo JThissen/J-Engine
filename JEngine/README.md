@@ -15,8 +15,8 @@ J-Engine is a tiny terrain render engine I've built over the past ~6 weeks in or
 
 ## Screenshots
 
-![](screenshots/J-Engine_screenshot1.png)
-![](screenshots/J-Engine_screenshot2.png)
+![](JEngine/screenshots/J-Engine_screenshot1.png)
+![](JEngine/screenshots/J-Engine_screenshot2.png)
 
 ## Folder structure
 
