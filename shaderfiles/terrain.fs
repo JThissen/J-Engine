@@ -127,7 +127,6 @@ vec3 shadeTerrain(vec3 vertex, vec3 vertex_viewspace, vec3 normal, vec2 texCoord
     float shadow = calcShadow(vertex_light_clipspace, n, lightDir);
     vec3 finalColor = shadow > 0.0 ? ((1.0 - shadow) + shadowAlpha) * diffuse_wrapped : diffuse_wrapped;
 
-
     //  //fog
     // float dist = length(vec3(view * model * vec4(vertex, 1.0)));
     // vec3 vertex_worldspace = vec3(model * vec4(vertex, 1.0));

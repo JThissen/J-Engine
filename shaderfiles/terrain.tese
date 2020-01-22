@@ -18,7 +18,6 @@ uniform vec2 translate;
 uniform float heightScale;
 uniform int noiseSize;
 
-//uniform sampler2D terrainTex;
 uniform mediump sampler2D randTex;
 
 in gl_PerVertex 
@@ -161,5 +160,5 @@ void main()
     Out.vertex_light_clipspace = lightProjection * lightView * model * vec4(pos, 1);
     Out.texCoords = In[0].texCoord + (vec2(1.0 / gridW, 1.0 / gridH) * gl_TessCoord.xy);
     gl_Position = projection * view * model * vec4(pos, 1);
-    gl_ClipDistance[0] = 0;
+    //gl_ClipDistance[0] = 0;
 }

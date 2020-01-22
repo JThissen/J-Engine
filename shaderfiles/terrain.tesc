@@ -1,6 +1,5 @@
 #version 460 core
 
-
 layout (vertices = 1) out;
 
 uniform mat4 projection;

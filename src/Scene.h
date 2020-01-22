@@ -7,12 +7,7 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <array>
-#include <vector>
-#include <string>
-#include <iostream>
 
-#include "Camera.h"
 #include "Bloom.h"
 #include "VolumeLight.h"
 #include "Terrain.h"
@@ -20,29 +15,16 @@
 class Scene
 {
 private:
-
 	Bloom				bloom;
-	VolumeLight			volumeLight;
+	VolumeLight			volumetric_light;
 	Terrain				terrain;
-	int					windowWidth;
-	int					windowHeight;
-	int					heightMapWidth;
-	int					heightMapHeight;
-	unsigned int		FBO;
-	unsigned int		colorBuffer;
-	unsigned int		VAO;
-	unsigned int		VBO;
-	unsigned int		EBO;
-	std::vector<float>	heightMapVertexData;
-	std::vector<short>	heightMapIndexData;
 
 public:
 	enum class Scenes { TERRAIN, VOLUMETRIC_LIGHT };
 
 	Scene() = delete;
-	Scene(int windowWidth, int windowHeight);
-	~Scene();
-	void DrawScene(float deltaTime, const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model, Camera& camera, Scenes scenes);
+	Scene(int window_width, int window_height);
+	void draw_scene(float delta_time, const glm::mat4& m_projection, const glm::mat4& m_view, const glm::mat4& m_model, View& view, Scenes scenes);
 };
 
 #endif

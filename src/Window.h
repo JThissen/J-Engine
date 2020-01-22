@@ -10,28 +10,36 @@
 #include <iomanip>
 #include <array>
 
+#include "Helpers.h"
+
 class Window
 {
 protected:
 	GLFWwindow*			window;
-	int					windowWidth;
-	int					windowHeight;
-	const std::string	windowName;
+	int					window_width;
+	int					window_height;
+	std::string			window_name;
 	std::string			glsl_version;
 
-	static void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
-	{
-		glViewport(0, 0, width, height);
-	}
+	Window(const std::string& window_name, const std::string& glsl_version);
+	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 public:
-	Window(const std::string windowName, const std::string glsl_version);
+	Window() = delete;
+	Window(const Window&) = delete;
+	Window& operator=(const Window&) = delete;
+	Window(Window&&) = delete;
+	Window& operator=(Window&&) = delete;
 	virtual ~Window();
-	void DetermineWindowSize();
-	void ClearScreen();
-	GLFWwindow*& GetWindow();
-	const std::string& GetGLSLversion();
-};
 
+	void determine_window_size();
+	void clear_screen();
+
+	GLFWwindow* get_window() const;
+	int get_window_width() const;
+	int get_window_height() const;
+	const std::string& get_window_name() const;
+	const std::string& get_glsl_version() const;
+};
 
 #endif

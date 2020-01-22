@@ -16,19 +16,20 @@
 class Shader
 {
 private:
-	unsigned int shaderProgram;
-	std::vector<unsigned int> currentAttachments;
+	unsigned int				shader_program;
+	std::vector<unsigned int>	current_attachments;
 
 public:
 	enum class ShaderType { VERTEX, TESS_CONTROL, TESS_EVAL, GEOMETRY, FRAGMENT };
 
 	Shader();
-	void UseShader();
-	void ReadShader(const std::string& shaderPath, std::string& shaderCode);
-	void AttachShader(const std::string& shaderPath, ShaderType shaderType);
-	void BuildShader();
-	std::string GetShaderName(ShaderType shaderType);
-	unsigned int& GetShaderProgram();
+	void use_shader();
+	std::string read_shader(const std::string& shader_path);
+	void attach_shader(const std::string& shader_path, ShaderType shader_type);
+	void builder_shader();
+
+	std::string get_shader_name(ShaderType shader_type) const;
+	unsigned int get_shader_program() const;
 };
 
 #endif

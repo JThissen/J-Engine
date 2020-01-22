@@ -1,11 +1,10 @@
 #include "Engine.h"
 
-const std::string windowName = "J-Engine";
-const std::string glslVersion = "#version 460";
-
 int main(int argc, char* argv[])
 {
-	Engine& engine = Engine::CreateInstance(windowName, glslVersion);
-	engine.Initialize();
+	std::string window_name = "J-Engine";
+	std::string glsl_version = "#version 460";
+	Engine& engine = Engine::get_instance(window_name, glsl_version);
+	engine.initialize();
 	return 0;
 }

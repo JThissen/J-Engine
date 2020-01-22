@@ -33,6 +33,4 @@ void main(void)
 	outColor *= exposure;
 	outColor += vec4(texture( tex2, inoutTexCoord).rgb, 1.0);
 	outColor *= 0.5;
-
-	//outColor = vec4(texture( tex1, inoutTexCoord).rgb, 1.0);
 }

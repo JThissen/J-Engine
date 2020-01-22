@@ -16,9 +16,5 @@ uniform vec3 lightPosition;
 
 void main()
 {
-	// vec3 position_local = texture(positionBuffer, In.TexCoords).xyz;
-	// vec3 position_clip = projection * view * model * vec4(position_local, 1.0);
-
-	// FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 	gl_FragDepth = gl_FragCoord.z;
 }

@@ -73,8 +73,6 @@ void main()
     float hb = abs(c * sin( alpha ));
     float hc = abs(b * sin( alpha ));
 
-   
-
     emitVertex(0);
     edgeDistance = vec3(ha, 0, 0);
     EmitVertex();

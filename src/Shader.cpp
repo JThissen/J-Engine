@@ -2,77 +2,87 @@
 
 Shader::Shader()
 {
-	shaderProgram = glCreateProgram();
+	shader_program = glCreateProgram();
 }
 
-void Shader::UseShader()
+void Shader::use_shader()
 {
-	glUseProgram(shaderProgram);
+	glUseProgram(shader_program);
 }
 
-void Shader::ReadShader(const std::string& shaderPath, std::string& shaderCode)
+std::string Shader::read_shader(const std::string& shader_path)
 {
+	std::fstream fs;
+	std::string buffer;
+	std::vector<char> writable_buffer;
+	fs.open(shader_path, std::ios::in | std::ios::beg);
+
 	try
 	{
-		std::ifstream ifstream;
-		std::stringstream ss;
-		ifstream.open(shaderPath, std::ios::in);
-		ss << ifstream.rdbuf();
-		ifstream.close();
-		shaderCode = ss.str();
+		if (fs.is_open())
+		{
+			fs.seekg(0, std::ios::end);
+			buffer.resize(fs.tellg());
+			writable_buffer.resize(buffer.size());
+			fs.seekg(0, std::ios::beg);
+			fs.read(writable_buffer.data(), buffer.size());
+			fs.close();
+		}
+		else
+			std::cout << "Could not read shader with path: " << shader_path.data() << std::endl;
 	}
-	catch (const std::ios_base::failure& e)
+	catch (const std::ios_base::failure & e)
 	{
 		std::cerr << "Unable to read shader." << "\n" << "Error: " << e.what() << "\n" << "Code: " << e.code() << std::endl;
 	}
+
+	return std::string(writable_buffer.begin(), writable_buffer.end());
 }
 
-void Shader::AttachShader(const std::string& shaderPath, ShaderType shaderType)
+void Shader::attach_shader(const std::string& shader_path, ShaderType shader_type)
 {
-	std::string shaderCode;
-	ReadShader(shaderPath, shaderCode);
-	std::unique_ptr<const char*> shaderCode_c = std::make_unique<const char*>(shaderCode.c_str());
+	std::string shader_code = read_shader(shader_path);
+	const char* shader_handle_c[] = { shader_code.data() };
 	unsigned int shader;
-
-	switch (shaderType)
-	{
-	case ShaderType::VERTEX: shader = glCreateShader(GL_VERTEX_SHADER); break;
-	case ShaderType::TESS_CONTROL: shader = glCreateShader(GL_TESS_CONTROL_SHADER); break;
-	case ShaderType::TESS_EVAL: shader = glCreateShader(GL_TESS_EVALUATION_SHADER); break;
-	case ShaderType::GEOMETRY: shader = glCreateShader(GL_GEOMETRY_SHADER); break;
-	case ShaderType::FRAGMENT: shader = glCreateShader(GL_FRAGMENT_SHADER); break;
-	}
-
-	glShaderSource(shader, 1, shaderCode_c.get(), nullptr);
-	glCompileShader(shader);
-
 	int compileSuccess;
 	constexpr int bufferSize = 1024;
 	std::array<char, bufferSize> infoLog;
+
+	switch (shader_type)
+	{
+		case ShaderType::VERTEX: shader = glCreateShader(GL_VERTEX_SHADER); break;
+		case ShaderType::TESS_CONTROL: shader = glCreateShader(GL_TESS_CONTROL_SHADER); break;
+		case ShaderType::TESS_EVAL: shader = glCreateShader(GL_TESS_EVALUATION_SHADER); break;
+		case ShaderType::GEOMETRY: shader = glCreateShader(GL_GEOMETRY_SHADER); break;
+		case ShaderType::FRAGMENT: shader = glCreateShader(GL_FRAGMENT_SHADER); break;
+	}
+
+	glShaderSource(shader, 1, shader_handle_c, nullptr);
+	glCompileShader(shader);
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compileSuccess);
 
 	if (!compileSuccess)
 	{
 		glGetShaderInfoLog(shader, bufferSize, nullptr, infoLog.data());
-		std::cerr << "Failed to compile " << GetShaderName(shaderType) << " shader. " << "Log: " << infoLog.data() << std::endl;
+		std::cerr << "Failed to compile " << get_shader_name(shader_type) << " shader. " << "Log: " << infoLog.data() << std::endl;
 	}
 
-	glAttachShader(shaderProgram, shader);
-	currentAttachments.push_back(shader);
+	glAttachShader(shader_program, shader);
+	current_attachments.push_back(shader);
 }
 
-void Shader::BuildShader()
+void Shader::builder_shader()
 {
-	glLinkProgram(shaderProgram);
+	glLinkProgram(shader_program);
 
-	for (int i = currentAttachments.size(); i > 0; --i)
+	for (int i = current_attachments.size(); i > 0; --i)
 	{
-		glDeleteShader(currentAttachments[i - 1]);
-		currentAttachments.pop_back();
+		glDeleteShader(current_attachments[i - 1]);
+		current_attachments.pop_back();
 	}
 }
 
-std::string Shader::GetShaderName(ShaderType shaderType)
+std::string Shader::get_shader_name(ShaderType shader_type) const
 {
 	std::unordered_map<ShaderType, std::string> enumMap =
 	{
@@ -83,7 +93,7 @@ std::string Shader::GetShaderName(ShaderType shaderType)
 		{ShaderType::FRAGMENT, "FRAGMENT"}
 	};
 
-	std::unordered_map<ShaderType, std::string>::iterator it = enumMap.find(shaderType);
+	std::unordered_map<ShaderType, std::string>::iterator it = enumMap.find(shader_type);
 
 	if (it == enumMap.end())
 		std::cerr << "Invalid shader type." << std::endl;
@@ -91,4 +101,4 @@ std::string Shader::GetShaderName(ShaderType shaderType)
 	return it->second;
 }
 
-unsigned int& Shader::GetShaderProgram() { return shaderProgram; }
+unsigned int Shader::get_shader_program() const { return shader_program; }

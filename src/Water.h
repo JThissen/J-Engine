@@ -10,21 +10,25 @@
 #include <string>
 #include <vector>
 
+#include "Helpers.h"
 #include "ShaderBuilder.h"
 
 class Water
 {
 private:
-	ShaderBuilder			shaderBuilder;
-	Shader					shaderWater;
-	unsigned int			VAOWater;
-	unsigned int			VBOWater;
-
-	int						windowWidth;
-	int						windowHeight;
-	std::vector<float>		vertexData;
-	float					heightMin;
-	float					heightMax;
+	ShaderBuilder			shader_builder;
+	Shader					shader_water;
+	unsigned int			VAO_water;
+	unsigned int			VBO_water;
+	unsigned int			texture_water_normals;
+	unsigned int			texture_vector_2dmap;
+	unsigned int			texture_reflection_color_buffer;
+	unsigned int			texture_refraction_color_buffer;
+	unsigned int			texture_refraction_depth_buffer;
+	int						window_width;
+	int						window_height;
+	float					height_min;
+	float					height_max;
 	float					wavelength1;
 	float					wavelength2;
 	float					wavelength3;
@@ -37,33 +41,28 @@ private:
 	float					speed2;
 	float					speed3;
 	float					speed4;
-	float					specularStrength;
-	float					mixStrength;
+	float					specular_strength;
+	float					mix_strength;
+	float					line_width;
+	bool					toggle_grid;
 	glm::vec2				dir1;
 	glm::vec2				dir2;
 	glm::vec2				dir3;
 	glm::vec2				dir4;
-	glm::vec3				shallowColor;
-	glm::vec3				deepColor;
-	bool					toggleGrid;
-	float					lineWidth;
-
-	unsigned int			texture_waterNormals;
-	unsigned int			texture_vector2dmap;
-	unsigned int			texture_reflectionColorBuffer;
-	unsigned int			texture_refractionColorBuffer;
-	unsigned int			texture_refractionDepthBuffer;
+	glm::vec3				shallow_color;
+	glm::vec3				deep_color;
+	std::vector<float>		vertex_data;
 
 public:
 	Water() = default;
-	Water(int w, int h);
-	void IntializeShaderParameters();
-	void CreateShader();
-	void CreateBuffers();
-	void LoadStaticTextures();
-	void RenderWater(const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model, unsigned int FBO, glm::vec3 tileSize, 
-		int gridW, int gridH, int outerTessellation, int innerTessellation, glm::vec3 sunPosition, float specularShininess, 
-		glm::vec3 ambientColor, float time, unsigned int& reflectionColorBuffer, unsigned int& refractionColorBuffer, unsigned int& refractionDepthBuffer);
+	Water(int window_width, int window_height);
+	void initialize_shader_parameters();
+	void create_shader();
+	void create_buffers();
+	void load_static_textures();
+	void render_water(const glm::mat4& m_projection, const glm::mat4& m_view, const glm::mat4& m_model, unsigned int FBO, const glm::vec3& tile_size, 
+		int grid_w, int grid_h, int outer_tessellation, int inner_tessellation, const glm::vec3& sun_position, float specular_shininess, 
+		const glm::vec3& ambient_color, float time, unsigned int& reflection_color_buffer, unsigned int& refraction_color_buffer, unsigned int& refraction_depth_buffer);
 };
 
 #endif

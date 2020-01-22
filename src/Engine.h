@@ -14,15 +14,19 @@
 #include <random>
 
 #include "Window.h"
+#include "VolumeLight.h"
+#include "View.h"
+#include "Scene.h"
+#include "Helpers.h"
 
 class Engine : public Window
 {
 private:
-	float		currentTime;
-	float		previousTime;
-	float		deltaTime;
+	float		current_time;
+	float		previous_time;
+	float		delta_time;
 
-	Engine(const std::string& windowName, const std::string& glsl_version);
+	Engine(const std::string& window_name, const std::string& glsl_version);
 
 public:
 	Engine() = delete;
@@ -32,9 +36,11 @@ public:
 	Engine& operator=(Engine&&) = delete;
 	virtual ~Engine() = default;
 
-	static Engine& CreateInstance(const std::string& windowName, const std::string& glslVersion);
-	void Initialize();
-	void CalcDeltaTime();
+	static Engine& get_instance(const std::string& window_name, const std::string& glsl_version);
+	void initialize();
+	void initialize_callbacks(View& camera);
+	void calc_delta_time();
+	void look_at(glm::vec3 view_pos, glm::vec3 view_front, glm::vec3 view_up = glm::vec3(0.0f, 1.0f, 0.0f));
 };
 
 #endif

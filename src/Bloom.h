@@ -4,37 +4,39 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 #include <string>
+
+#include "Helpers.h"
 #include "ShaderBuilder.h"
 
 class Bloom
 {
 private:
 	unsigned int	FBO;
-	unsigned int	textureColorBuffer;
-	unsigned int	textureHdrBuffer;
+	unsigned int	texture_color_buffer;
+	unsigned int	texture_hdr_buffer;
 	unsigned int	attachments[2];
-	unsigned int	pingpongFBO[2];
-	unsigned int	pingpongColorbuffers[2];
+	unsigned int	pingpong_FBO[2];
+	unsigned int	pingpong_color_buffer[2];
+	unsigned int	quad_VAO;
+	unsigned int	quad_VBO;
 	bool			horizontal;
-	unsigned int	quadVAO;
-	unsigned int	quadVBO;
 	std::string		vs_blur;
 	std::string		fs_blur;
 	std::string		vs_bloom;
 	std::string		fs_bloom;
-	ShaderBuilder	shaderBuilder;
+	ShaderBuilder	shader_builder;
 	Shader			shader_blur;
 	Shader			shader_bloom;
 
 public:
-	Bloom();
-	Bloom(int windowWidth, int windowHeight);
-	unsigned int getFBO();
-	unsigned int gettextureColorBuffer();
-	unsigned int gettextureHdrBuffer();
+	Bloom() = default;
+	Bloom(int window_width, int window_height);
 	void blur(int amount);
 	void draw(float exposure);
-};
 
+	unsigned int get_fbo() const;
+	unsigned int get_texture_color_buffer() const;
+	unsigned int get_texture_hdr_buffer() const;
+};
 
 #endif

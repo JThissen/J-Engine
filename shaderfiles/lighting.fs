@@ -14,7 +14,6 @@ uniform sampler2D gPosition;
 uniform sampler2D ssao;
 uniform sampler2D depthBuffer;
 uniform sampler2D occlusionBuffer;
-
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
@@ -29,10 +28,8 @@ uniform bool showSSAO;
 uniform vec3 sunPosition;
 uniform vec3 lightPosition;
 uniform vec3 skyColor;
-
 uniform mat4 lightProjection;
 uniform mat4 lightView;
-
 uniform int samples;
 uniform float exposure;
 uniform float decay;
@@ -53,8 +50,6 @@ float LinearizeDepth(float depth)
 vec4 sky(vec3 origin, vec3 direction)
 {
     vec3 sky = mix(skyColor, backgroundColor, pow(min(1.0, 0.75-direction.y), 10.0));
-    //float sun = pow(max(0.0, dot(direction, -sunPosition)), 1500.0);
-    //sky += sunColor*sun;
     return vec4(sky, 1.0);
 }
 
@@ -114,18 +109,12 @@ void main()
     float d = LinearizeDepth(depth.r) / far;
     vec3 camera_worldspace = (inverse(view) * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
     vec3 dir = normalize(In.pos_worldspace.xyz - camera_worldspace);
-
     vec4 vertex_light_clipspace = lightProjection * lightView * model * vec4(pos, 1);
-    //float shadow = calcShadow(vertex_light_clipspace);
-
     vec4 ambient = vec4(ambientColor, 1.0) * color * occlusion;
-    vec4 finalColor = ambient;// + (1.0 - shadow);
+    vec4 finalColor = ambient;
 
     if(d < 0.9)
         finalColor = calcFog(finalColor, pos);
-
-    // if(d > 0.9)
-    //     finalColor = sky(camera_worldspace, dir);
 
     finalColor += calcVolumetricLight();
 

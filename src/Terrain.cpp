@@ -4,64 +4,65 @@
 #include "Model.h"
 #include "Mesh.h"
 
-Terrain::Terrain(int w, int h) : windowWidth(w), windowHeight(h)
+Terrain::Terrain(int window_width, int window_height) 
+	: window_width(window_width), window_height(window_height)
 {
-	InitializeParameters();
-	CreateShaders();
-	CreateBuffers();
+	initialize_parameters();
+	create_shaders();
+	create_buffers();
 }
 
-void Terrain::InitializeParameters()
+void Terrain::initialize_parameters()
 {
-	water = Water(windowWidth, windowHeight);
-	ssao = SSAO(windowWidth, windowHeight);
-	vertexData = { 0.0f, 0.0f, 0.0f, 1.0f };
-	innerTessellation = outerTessellation = 32;
-	innerTessellationWater = outerTessellationWater = 10;
-	gridW = gridH = 16;
-	instances = gridW * gridH;
-	noiseFreq = 0.25f;
-	noiseOctaves = 8;
+	water = Water(window_width, window_height);
+	ssao = SSAO(window_width, window_height);
+	vertex_data = { 0.0f, 0.0f, 0.0f, 1.0f };
+	inner_tessellation = outer_tessellation = 32;
+	inner_tessellation_water = outer_tessellation_water = 10;
+	grid_w = grid_h = 16;
+	instances = grid_w * grid_h;
+	noise_frequency = 0.25f;
+	noise_octaves = 8;
 	translate = glm::vec2(0.0f, 0.0f);
-	heightScale = 3.5f;
-	noiseSize = 300;
-	tileSize = glm::vec3(1.0f, 0.0f, 1.0f);
-	specularShininess = 100.0f;
-	ambientColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	lightColor = glm::vec3(1.5f, 1.5f, 1.5f);
-	wrappedDiffuse = 0.9f;
-	fogExp = 0.1f;
+	height_scale = 3.5f;
+	noise_size = 300;
+	tile_size = glm::vec3(1.0f, 0.0f, 1.0f);
+	specular_shininess = 100.0f;
+	ambient_color = glm::vec3(1.0f, 1.0f, 1.0f);
+	light_color = glm::vec3(1.5f, 1.5f, 1.5f);
+	wrapped_diffuse = 0.9f;
+	fog_exp = 0.1f;
 	de = 0.068f;
 	di = 0.043f;
-	fogUpperBound = 1.668f;
-	fogLowerBound = 0.4f;
-	fogColor = glm::vec3(0.9f, 0.9f, 0.9f);
-	lineWidth = 0.001f;
-	toggleGrid = false;
+	fog_upper_bound = 1.668f;
+	fog_lower_bound = 0.4f;
+	fog_color = glm::vec3(0.9f, 0.9f, 0.9f);
+	line_width = 0.001f;
+	toggle_grid = false;
 	cull = true;
-	cameraLOD = false;
-	minDepth = 0.0f;
-	maxDepth = 25.0f;
-	minTessellation = 12.0f;
-	maxTessellation = 32.0f;
-	sunPosition = glm::normalize(glm::vec3(-1.0, -0.25, 1.0));
-	waterHeight = 0.1f;
-	reflrefrTessellation = 5;
-	snowBreakpoint = 1.0f;
-	skyColor = glm::vec3(0.7f, 0.8f, 1.0f) * 0.7f;
-	lightPos = glm::vec3(43.0f, 11.0f, -31.0f);
-	shadowBias = 0.001f;
-	shadowAlpha = 0.15f;
-	shadowSamples = 7;
+	camera_lod = false;
+	min_depth = 0.0f;
+	max_depth = 25.0f;
+	min_tessellation = 12.0f;
+	max_tessellation = 32.0f;
+	sun_position = glm::normalize(glm::vec3(-1.0, -0.25, 1.0));
+	water_height = 0.1f;
+	refl_refr_tessellation = 5;
+	snow_breakpoint = 1.0f;
+	sky_color = glm::vec3(0.7f, 0.8f, 1.0f) * 0.7f;
+	light_pos = glm::vec3(43.0f, 11.0f, -31.0f);
+	shadow_bias = 0.001f;
+	shadow_alpha = 0.15f;
+	shadow_samples = 7;
 	samples = 100;
 	exposure = 0.038f;
 	decay = 1.0f;
 	density = 0.962f;
 	weight = 0.476f;
-	volumeLightColor = glm::vec3(1.0, 1.0, 0.8);
+	volume_light_color = glm::vec3(1.0, 1.0, 0.8);
 }
 
-void Terrain::CreateShaders()
+void Terrain::create_shaders()
 {
 	std::string vs_terrain = "./ShaderFiles/terrain.vs";
 	std::string tesc_terrain = "./ShaderFiles/terrain.tesc";
@@ -76,84 +77,84 @@ void Terrain::CreateShaders()
 	std::string vs_normal = "./ShaderFiles/normal.vs";
 	std::string fs_normal = "./ShaderFiles/normal.fs";
 
-	shaderBuilder.CreateShader()
-		.AttachVertexShader(vs_normal)
-		.AttachFragmentShader(fs_normal);
+	shader_builder.create_shader()
+		.attach_vertex_shader(vs_normal)
+		.attach_fragment_shader(fs_normal);
 
-	shader_normal = shaderBuilder.BuildShader();
+	shader_normal = shader_builder.build_shader();
 
-	shaderBuilder.CreateShader()
-		.AttachVertexShader(vs_terrain)
-		.AttachTessControlShader(tesc_terrain)
-		.AttachTessEvaShader(tese_terrain)
-		.AttachGeometryShader(gs_terrain)
-		.AttachFragmentShader(fs_terrain);
+	shader_builder.create_shader()
+		.attach_vertex_shader(vs_terrain)
+		.attach_tess_control_shader(tesc_terrain)
+		.attach_tess_eval_shader(tese_terrain)
+		.attach_geometry_shader(gs_terrain)
+		.attach_fragment_shader(fs_terrain);
 
-	shader_terrain = shaderBuilder.BuildShader();
-	shader_terrain.UseShader();
-	noiseTexture = Helpers::Noise::createNoiseTexture2D(GL_R16F, true);
-	grassTexture = Helpers::Load::loadTexture("./Images/textures/grass.jpg");
-	snowTexture = Helpers::Load::loadTexture("./Images/textures/snow.jpg");
-	sandTexture = Helpers::Load::loadTexture("./Images/textures/brownish.jpg");
-	cliffTexture = Helpers::Load::loadTexture("./Images/textures/cliff.jpg");
-	glUniform1i(glGetUniformLocation(shader_terrain.GetShaderProgram(), "randTex"), 0);
-	glUniform1i(glGetUniformLocation(shader_terrain.GetShaderProgram(), "grassSampler"), 1);
-	glUniform1i(glGetUniformLocation(shader_terrain.GetShaderProgram(), "snowSampler"), 2);
-	glUniform1i(glGetUniformLocation(shader_terrain.GetShaderProgram(), "sandSampler"), 3);
-	glUniform1i(glGetUniformLocation(shader_terrain.GetShaderProgram(), "cliffSampler"), 4);
-	glUniform1i(glGetUniformLocation(shader_terrain.GetShaderProgram(), "shadowDepthBuffer"), 5);
+	shader_terrain = shader_builder.build_shader();
+	shader_terrain.use_shader();
+	noise_texture = Helpers::Noise::create_noise_texture_2d<300>(GL_R16F, true);
+	grass_texture = Helpers::Load::load_texture("./Images/textures/grass.jpg");
+	snow_texture = Helpers::Load::load_texture("./Images/textures/snow.jpg");
+	sand_texture = Helpers::Load::load_texture("./Images/textures/brownish.jpg");
+	cliff_texture = Helpers::Load::load_texture("./Images/textures/cliff.jpg");
+	glUniform1i(glGetUniformLocation(shader_terrain.get_shader_program(), "randTex"), 0);
+	glUniform1i(glGetUniformLocation(shader_terrain.get_shader_program(), "grassSampler"), 1);
+	glUniform1i(glGetUniformLocation(shader_terrain.get_shader_program(), "snowSampler"), 2);
+	glUniform1i(glGetUniformLocation(shader_terrain.get_shader_program(), "sandSampler"), 3);
+	glUniform1i(glGetUniformLocation(shader_terrain.get_shader_program(), "cliffSampler"), 4);
+	glUniform1i(glGetUniformLocation(shader_terrain.get_shader_program(), "shadowDepthBuffer"), 5);
 
-	shaderBuilder.CreateShader()
-		.AttachVertexShader(vs_terrain)
-		.AttachTessControlShader(tesc_terrain)
-		.AttachTessEvaShader(tese_terrain)
-		.AttachGeometryShader(gs_terrain)
-		.AttachFragmentShader(fs_terrainEmpty);
+	shader_builder.create_shader()
+		.attach_vertex_shader(vs_terrain)
+		.attach_tess_control_shader(tesc_terrain)
+		.attach_tess_eval_shader(tese_terrain)
+		.attach_geometry_shader(gs_terrain)
+		.attach_fragment_shader(fs_terrainEmpty);
 
-	shader_terrainEmpty = shaderBuilder.BuildShader();
-	shader_terrainEmpty.UseShader();
-	glUniform1i(glGetUniformLocation(shader_terrainEmpty.GetShaderProgram(), "randTex"), 0);
+	shader_terrain_empty = shader_builder.build_shader();
+	shader_terrain_empty.use_shader();
+	glUniform1i(glGetUniformLocation(shader_terrain_empty.get_shader_program(), "randTex"), 0);
 
-	shaderBuilder.CreateShader()
-		.AttachVertexShader(vs_lighting)
-		.AttachFragmentShader(fs_lighting);
+	shader_builder.create_shader()
+		.attach_vertex_shader(vs_lighting)
+		.attach_fragment_shader(fs_lighting);
 
-	shader_lighting = shaderBuilder.BuildShader();
-	shader_lighting.UseShader();
-	glUniform1i(glGetUniformLocation(shader_lighting.GetShaderProgram(), "gAlbedo"), 0);
-	glUniform1i(glGetUniformLocation(shader_lighting.GetShaderProgram(), "ssao"), 1);
-	glUniform1i(glGetUniformLocation(shader_lighting.GetShaderProgram(), "depthBuffer"), 2);
-	glUniform1i(glGetUniformLocation(shader_lighting.GetShaderProgram(), "gPosition"), 3);
-	glUniform1i(glGetUniformLocation(shader_lighting.GetShaderProgram(), "occlusionBuffer"), 4);
+	shader_lighting = shader_builder.build_shader();
+	shader_lighting.use_shader();
+	glUniform1i(glGetUniformLocation(shader_lighting.get_shader_program(), "gAlbedo"), 0);
+	glUniform1i(glGetUniformLocation(shader_lighting.get_shader_program(), "ssao"), 1);
+	glUniform1i(glGetUniformLocation(shader_lighting.get_shader_program(), "depthBuffer"), 2);
+	glUniform1i(glGetUniformLocation(shader_lighting.get_shader_program(), "gPosition"), 3);
+	glUniform1i(glGetUniformLocation(shader_lighting.get_shader_program(), "occlusionBuffer"), 4);
 }
 
-void Terrain::Draw(const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model, Camera& camera)
+void Terrain::draw(const glm::mat4& m_projection, const glm::mat4& m_view, const glm::mat4& m_model, View& view)
 {
-	Helpers::Gui::ImGuiTessellationWindow(windowWidth, windowHeight, gridW, gridH, tileSize, outerTessellation, innerTessellation, noiseFreq,
-		noiseOctaves, translate, heightScale, noiseSize, specularShininess, ambientColor, wrappedDiffuse, fogExp,
-		de, di, fogUpperBound, fogLowerBound, fogColor, toggleGrid, lineWidth, cull, cameraLOD, minDepth, maxDepth,
-		minTessellation, maxTessellation, lightColor, sunPosition, snowBreakpoint, lightPos, shadowBias, shadowAlpha, 
-		shadowSamples, samples, exposure, decay, density, weight, volumeLightColor);
+	Helpers::Gui::imgui_tessellation_window(window_width, window_height, grid_w, grid_h, tile_size, outer_tessellation, inner_tessellation, noise_frequency,
+		noise_octaves, translate, height_scale, noise_size, specular_shininess, ambient_color, wrapped_diffuse, fog_exp,
+		de, di, fog_upper_bound, fog_lower_bound, fog_color, toggle_grid, line_width, cull, camera_lod, min_depth, max_depth,
+		min_tessellation, max_tessellation, light_color, sun_position, snow_breakpoint, light_pos, shadow_bias, shadow_alpha, 
+		shadow_samples, samples, exposure, decay, density, weight, volume_light_color);
 
-	instances = gridW * gridH;
+	instances = grid_w * grid_h;
 	time = static_cast<float>(glfwGetTime()) * 0.5f;
-	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
-	lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	light_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+	light_view = glm::lookAt(light_pos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	RenderTerrain(lightProjection, lightView, model, camera, shader_terrainEmpty, shadowDepthFBO, false, true);
-	RenderTerrain(projection, view, model, camera, shader_terrain, FBO, true, false);
+	render_terrain(light_projection, light_view, m_model, view, shader_terrain_empty, shadow_depth_FBO, false, true);
+	render_terrain(m_projection, m_view, m_model, view, shader_terrain, FBO, true, false);
 
-	water.RenderWater(projection, view, model, FBO, tileSize, gridW, gridH, innerTessellationWater, outerTessellationWater,
-		sunPosition, specularShininess, ambientColor, time, reflectionColorBuffer, refractionColorBuffer, refractionDepthBuffer);
+	water.render_water(m_projection, m_view, m_model, FBO, tile_size, grid_w, grid_h, inner_tessellation_water, outer_tessellation_water,
+		sun_position, specular_shininess, ambient_color, time, reflection_color_buffer, refraction_color_buffer, refraction_depth_buffer);
 	
-	ssao.RenderSSAO(projection, view, model, colorBuffer, normalBuffer, positionBuffer, ssaoColorBufferBlur, showSSAO);
+	ssao.render_SSAO(m_projection, m_view, m_model, color_buffer, normal_buffer, position_buffer, ssao_color_buffer_blur, show_ssao);
 
-	RenderSun(projection, view);
-	RenderPostProcessing(projection, view, model);
-	Helpers::Gui::ImGuiRender();
+	render_sun(m_projection, m_view);
+	render_post_processing(m_projection, m_view, m_model);
+	Helpers::Gui::imgui_render();
 }
 
-unsigned int Terrain::loadTerrainTexture(std::string path)
+unsigned int Terrain::load_terrain_texture(std::string path)
 {
 	unsigned int texture;
 	int width;
@@ -181,22 +182,22 @@ unsigned int Terrain::loadTerrainTexture(std::string path)
 	return texture;
 }
 
-void Terrain::CreateBuffers()
+void Terrain::create_buffers()
 {
 	//shadow mapping buffer
 	const unsigned int shadowTextureWidth = 1024;
 	const unsigned int shadowTextureHeight = 1024;
 
-	glGenFramebuffers(1, &shadowDepthFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowDepthFBO);
-	glGenTextures(1, &shadowDepthBuffer);
-	glBindTexture(GL_TEXTURE_2D, shadowDepthBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glGenFramebuffers(1, &shadow_depth_FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow_depth_FBO);
+	glGenTextures(1, &shadow_depth_buffer);
+	glBindTexture(GL_TEXTURE_2D, shadow_depth_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, window_width, window_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_depth_buffer, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
@@ -207,14 +208,14 @@ void Terrain::CreateBuffers()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//reflection buffer
-	glGenFramebuffers(1, &reflectionFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
-	glGenTextures(1, &reflectionColorBuffer);
-	glBindTexture(GL_TEXTURE_2D, reflectionColorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glGenFramebuffers(1, &reflection_FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, reflection_FBO);
+	glGenTextures(1, &reflection_color_buffer);
+	glBindTexture(GL_TEXTURE_2D, reflection_color_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_width, window_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, reflectionColorBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, reflection_color_buffer, 0);
 
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -226,21 +227,21 @@ void Terrain::CreateBuffers()
 
 
 	//refraction buffer
-	glGenFramebuffers(1, &refractionFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, refractionFBO);
-	glGenTextures(1, &refractionColorBuffer);
-	glBindTexture(GL_TEXTURE_2D, refractionColorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glGenFramebuffers(1, &refraction_FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, refraction_FBO);
+	glGenTextures(1, &refraction_color_buffer);
+	glBindTexture(GL_TEXTURE_2D, refraction_color_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_width, window_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, refractionColorBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, refraction_color_buffer, 0);
 
-	glGenTextures(1, &refractionDepthBuffer);
-	glBindTexture(GL_TEXTURE_2D, refractionDepthBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glGenTextures(1, &refraction_depth_buffer);
+	glBindTexture(GL_TEXTURE_2D, refraction_depth_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, window_width, window_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, refractionDepthBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, refraction_depth_buffer, 0);
 
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -255,49 +256,49 @@ void Terrain::CreateBuffers()
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-	glGenTextures(1, &colorBuffer);
-	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glGenTextures(1, &color_buffer);
+	glBindTexture(GL_TEXTURE_2D, color_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_width, window_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_buffer, 0);
 
-	glGenTextures(1, &normalBuffer);
-	glBindTexture(GL_TEXTURE_2D, normalBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+	glGenTextures(1, &normal_buffer);
+	glBindTexture(GL_TEXTURE_2D, normal_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, window_width, window_height, 0, GL_RGB, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_buffer, 0);
 
-	glGenTextures(1, &positionBuffer);
-	glBindTexture(GL_TEXTURE_2D, positionBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+	glGenTextures(1, &position_buffer);
+	glBindTexture(GL_TEXTURE_2D, position_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, window_width, window_height, 0, GL_RGB, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, positionBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, position_buffer, 0);
 
-	glGenTextures(1, &colorBufferWater);
-	glBindTexture(GL_TEXTURE_2D, colorBufferWater);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glGenTextures(1, &color_buffer_water);
+	glBindTexture(GL_TEXTURE_2D, color_buffer_water);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_width, window_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, colorBufferWater, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, color_buffer_water, 0);
 
-	glGenTextures(1, &occlusionBuffer);
-	glBindTexture(GL_TEXTURE_2D, occlusionBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glGenTextures(1, &occlusion_buffer);
+	glBindTexture(GL_TEXTURE_2D, occlusion_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_width, window_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, occlusionBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, occlusion_buffer, 0);
 
-	glGenTextures(1, &depthBuffer);
-	glBindTexture(GL_TEXTURE_2D, depthBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glGenTextures(1, &depth_buffer);
+	glBindTexture(GL_TEXTURE_2D, depth_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, window_width, window_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_buffer, 0);
 
 	unsigned int attachments[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
 	glDrawBuffers(5, attachments);
@@ -308,124 +309,124 @@ void Terrain::CreateBuffers()
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	shader_terrain.UseShader();
+	shader_terrain.use_shader();
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData.front(), GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
+	glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(float), &vertex_data.front(), GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, reinterpret_cast<void*>(0));
 	glEnableVertexAttribArray(0);
 	glPatchParameteri(GL_PATCH_VERTICES, 1);
 	glBindVertexArray(0);
 }
 
-void Terrain::RenderTerrain(const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model, Camera& camera, Shader& shader,
-	unsigned int fbo, bool reflectionRefraction, bool useEmpty)
+void Terrain::render_terrain(const glm::mat4& m_projection, const glm::mat4& m_view, const glm::mat4& m_model, View& view, Shader& shader,
+	unsigned int fbo, bool reflection_refraction, bool use_empty)
 {
-	shader.UseShader();
-	glUniformMatrix4fv(glGetUniformLocation(shader.GetShaderProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(shader.GetShaderProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shader.GetShaderProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(glGetUniformLocation(shader.GetShaderProgram(), "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
-	glUniformMatrix4fv(glGetUniformLocation(shader.GetShaderProgram(), "lightView"), 1, GL_FALSE, glm::value_ptr(lightView));
-	glUniform3fv(glGetUniformLocation(shader.GetShaderProgram(), "tileSize"), 1, glm::value_ptr(tileSize));
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "gridW"), gridW);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "gridH"), gridH);
+	shader.use_shader();
+	glUniformMatrix4fv(glGetUniformLocation(shader.get_shader_program(), "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader.get_shader_program(), "view"), 1, GL_FALSE, glm::value_ptr(m_view));
+	glUniformMatrix4fv(glGetUniformLocation(shader.get_shader_program(), "model"), 1, GL_FALSE, glm::value_ptr(m_model));
+	glUniformMatrix4fv(glGetUniformLocation(shader.get_shader_program(), "lightProjection"), 1, GL_FALSE, glm::value_ptr(light_projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader.get_shader_program(), "lightView"), 1, GL_FALSE, glm::value_ptr(light_view));
+	glUniform3fv(glGetUniformLocation(shader.get_shader_program(), "tileSize"), 1, glm::value_ptr(tile_size));
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "gridW"), grid_w);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "gridH"), grid_h);
 
-	if (useEmpty)
+	if (use_empty)
 	{
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "outerTessFactor"), reflrefrTessellation);
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "innerTessFactor"), reflrefrTessellation);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "outerTessFactor"), refl_refr_tessellation);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "innerTessFactor"), refl_refr_tessellation);
 	}
 	else
 	{
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "outerTessFactor"), outerTessellation);
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "innerTessFactor"), innerTessellation);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "outerTessFactor"), outer_tessellation);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "innerTessFactor"), inner_tessellation);
 	}
 
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "noiseFreq"), noiseFreq);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "noiseOctaves"), noiseOctaves);
-	glUniform2fv(glGetUniformLocation(shader.GetShaderProgram(), "translate"), 1, glm::value_ptr(translate));
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "heightScale"), heightScale);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "noiseSize"), noiseSize);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "cameraLOD"), cameraLOD);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "minDepth"), minDepth);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "maxDepth"), maxDepth);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "minTessellation"), minTessellation);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "maxTessellation"), maxTessellation);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "snowBreakpoint"), snowBreakpoint);
-	glUniform3fv(glGetUniformLocation(shader.GetShaderProgram(), "sunPosition"), 1, glm::value_ptr(lightPos));
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "shadowBias"), shadowBias);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "shadowAlpha"), shadowAlpha);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "shadowSamples"), static_cast<float>(shadowSamples));
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "shininess"), specularShininess);
-	glUniform3fv(glGetUniformLocation(shader.GetShaderProgram(), "ambientColor"), 1, glm::value_ptr(ambientColor));
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "fogExp"), fogExp);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "de"), de);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "di"), di);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "fogUpperBound"), fogUpperBound);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "fogLowerBound"), fogLowerBound);
-	glUniform3fv(glGetUniformLocation(shader.GetShaderProgram(), "fogColor"), 1, glm::value_ptr(fogColor));
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "toggleGrid"), toggleGrid);
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "lineWidth"), lineWidth);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "cull"), cull);
-	glUniform3fv(glGetUniformLocation(shader.GetShaderProgram(), "lightColor"), 1, glm::value_ptr(lightColor));
-	glUniform1f(glGetUniformLocation(shader.GetShaderProgram(), "diffuseAmplitude"), wrappedDiffuse);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "mode"), mode);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "noiseFreq"), noise_frequency);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "noiseOctaves"), noise_octaves);
+	glUniform2fv(glGetUniformLocation(shader.get_shader_program(), "translate"), 1, glm::value_ptr(translate));
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "heightScale"), height_scale);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "noiseSize"), noise_size);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "cameraLOD"), camera_lod);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "minDepth"), min_depth);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "maxDepth"), max_depth);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "minTessellation"), min_tessellation);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "maxTessellation"), max_tessellation);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "snowBreakpoint"), snow_breakpoint);
+	glUniform3fv(glGetUniformLocation(shader.get_shader_program(), "sunPosition"), 1, glm::value_ptr(light_pos));
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "shadowBias"), shadow_bias);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "shadowAlpha"), shadow_alpha);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "shadowSamples"), static_cast<float>(shadow_samples));
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "shininess"), specular_shininess);
+	glUniform3fv(glGetUniformLocation(shader.get_shader_program(), "ambientColor"), 1, glm::value_ptr(ambient_color));
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "fogExp"), fog_exp);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "de"), de);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "di"), di);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "fogUpperBound"), fog_upper_bound);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "fogLowerBound"), fog_lower_bound);
+	glUniform3fv(glGetUniformLocation(shader.get_shader_program(), "fogColor"), 1, glm::value_ptr(fog_color));
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "toggleGrid"), toggle_grid);
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "lineWidth"), line_width);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "cull"), cull);
+	glUniform3fv(glGetUniformLocation(shader.get_shader_program(), "lightColor"), 1, glm::value_ptr(light_color));
+	glUniform1f(glGetUniformLocation(shader.get_shader_program(), "diffuseAmplitude"), wrapped_diffuse);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "mode"), mode);
 
-	if (reflectionRefraction)
+	if (reflection_refraction)
 	{
 		//render reflection texture
 		glEnable(GL_CLIP_DISTANCE0);
 		mode = 1;
-		float distance = (camera.GetCameraPos().y - waterHeight) * 2.0f;
-		camera.SetCameraPos(camera.GetCameraPos() - distance);
-		camera.InvertPitch();
-		glUniformMatrix4fv(glGetUniformLocation(shader.GetShaderProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "mode"), mode);
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "outerTessFactor"), reflrefrTessellation);
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "innerTessFactor"), reflrefrTessellation);
-		glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
+		float distance = (view.get_view_pos().y - water_height) * 2.0f;
+		view.set_view_pos(view.get_view_pos() - distance);
+		view.invert_pitch();
+		glUniformMatrix4fv(glGetUniformLocation(shader.get_shader_program(), "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "mode"), mode);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "outerTessFactor"), refl_refr_tessellation);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "innerTessFactor"), refl_refr_tessellation);
+		glBindFramebuffer(GL_FRAMEBUFFER, reflection_FBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0 + 0);
-		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		glBindTexture(GL_TEXTURE_2D, noise_texture);
 		glActiveTexture(GL_TEXTURE0 + 1);
-		glBindTexture(GL_TEXTURE_2D, grassTexture);
+		glBindTexture(GL_TEXTURE_2D, grass_texture);
 		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, snowTexture);
+		glBindTexture(GL_TEXTURE_2D, snow_texture);
 		glActiveTexture(GL_TEXTURE0 + 3);
-		glBindTexture(GL_TEXTURE_2D, sandTexture);
+		glBindTexture(GL_TEXTURE_2D, sand_texture);
 		glActiveTexture(GL_TEXTURE0 + 4);
-		glBindTexture(GL_TEXTURE_2D, cliffTexture);
+		glBindTexture(GL_TEXTURE_2D, cliff_texture);
 		glActiveTexture(GL_TEXTURE0 + 5);
-		glBindTexture(GL_TEXTURE_2D, shadowDepthBuffer);
+		glBindTexture(GL_TEXTURE_2D, shadow_depth_buffer);
 		glBindVertexArray(VAO);
 		glDrawArraysInstanced(GL_PATCHES, 0, 1, instances);
 		glBindVertexArray(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		camera.SetCameraPos(camera.GetCameraPos() + distance);
-		camera.InvertPitch();
+		view.set_view_pos(view.get_view_pos() + distance);
+		view.invert_pitch();
 
 		//render refraction texture
 		mode = 2;
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "mode"), mode);
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "outerTessFactor"), outerTessellation);
-		glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "innerTessFactor"), innerTessellation);
-		glBindFramebuffer(GL_FRAMEBUFFER, refractionFBO);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "mode"), mode);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "outerTessFactor"), outer_tessellation);
+		glUniform1i(glGetUniformLocation(shader.get_shader_program(), "innerTessFactor"), inner_tessellation);
+		glBindFramebuffer(GL_FRAMEBUFFER, refraction_FBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0 + 0);
-		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		glBindTexture(GL_TEXTURE_2D, noise_texture);
 		glActiveTexture(GL_TEXTURE0 + 1);
-		glBindTexture(GL_TEXTURE_2D, grassTexture);
+		glBindTexture(GL_TEXTURE_2D, grass_texture);
 		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, snowTexture);
+		glBindTexture(GL_TEXTURE_2D, snow_texture);
 		glActiveTexture(GL_TEXTURE0 + 3);
-		glBindTexture(GL_TEXTURE_2D, sandTexture);
+		glBindTexture(GL_TEXTURE_2D, sand_texture);
 		glActiveTexture(GL_TEXTURE0 + 4);
-		glBindTexture(GL_TEXTURE_2D, cliffTexture);
+		glBindTexture(GL_TEXTURE_2D, cliff_texture);
 		glActiveTexture(GL_TEXTURE0 + 5);
-		glBindTexture(GL_TEXTURE_2D, shadowDepthBuffer);
+		glBindTexture(GL_TEXTURE_2D, shadow_depth_buffer);
 		glBindVertexArray(VAO);
 		glDrawArraysInstanced(GL_PATCHES, 0, 1, instances);
 		glBindVertexArray(0);
@@ -435,26 +436,26 @@ void Terrain::RenderTerrain(const glm::mat4& projection, const glm::mat4& view, 
 
 	//render terrain
 	mode = 0;
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "mode"), mode);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "outerTessFactor"), outerTessellation);
-	glUniform1i(glGetUniformLocation(shader.GetShaderProgram(), "innerTessFactor"), innerTessellation);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "mode"), mode);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "outerTessFactor"), outer_tessellation);
+	glUniform1i(glGetUniformLocation(shader.get_shader_program(), "innerTessFactor"), inner_tessellation);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0 + 0);
-	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	glBindTexture(GL_TEXTURE_2D, noise_texture);
 
-	if (!useEmpty)
+	if (!use_empty)
 	{
 		glActiveTexture(GL_TEXTURE0 + 1);
-		glBindTexture(GL_TEXTURE_2D, grassTexture);
+		glBindTexture(GL_TEXTURE_2D, grass_texture);
 		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, snowTexture);
+		glBindTexture(GL_TEXTURE_2D, snow_texture);
 		glActiveTexture(GL_TEXTURE0 + 3);
-		glBindTexture(GL_TEXTURE_2D, sandTexture);
+		glBindTexture(GL_TEXTURE_2D, sand_texture);
 		glActiveTexture(GL_TEXTURE0 + 4);
-		glBindTexture(GL_TEXTURE_2D, cliffTexture);
+		glBindTexture(GL_TEXTURE_2D, cliff_texture);
 		glActiveTexture(GL_TEXTURE0 + 5);
-		glBindTexture(GL_TEXTURE_2D, shadowDepthBuffer);
+		glBindTexture(GL_TEXTURE_2D, shadow_depth_buffer);
 	}
 
 	glBindVertexArray(VAO);
@@ -463,60 +464,60 @@ void Terrain::RenderTerrain(const glm::mat4& projection, const glm::mat4& view, 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Terrain::RenderPostProcessing(const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model)
+void Terrain::render_post_processing(const glm::mat4& m_projection, const glm::mat4& m_view, const glm::mat4& m_model)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	shader_lighting.UseShader();
-	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
-	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "lightView"), 1, GL_FALSE, glm::value_ptr(lightView));
-	glUniform3fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "sunPosition"), 1, glm::value_ptr(sunPosition));
-	glUniform3fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "lightPosition"), 1, glm::value_ptr(lightPos));
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "diffuseAmplitude"), wrappedDiffuse);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "de"), de);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "di"), di);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "fogUpperBound"), fogUpperBound);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "fogLowerBound"), fogLowerBound);
-	glUniform3fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "fogColor"), 1, glm::value_ptr(fogColor));
-	glUniform3fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "ambientColor"), 1, glm::value_ptr(ambientColor));
-	glUniform3fv(glGetUniformLocation(shader_lighting.GetShaderProgram(), "skyColor"), 1, glm::value_ptr(skyColor));
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "shininess"), specularShininess);
-	glUniform1i(glGetUniformLocation(shader_lighting.GetShaderProgram(), "showSSAO"), showSSAO);
-	glUniform1i(glGetUniformLocation(shader_lighting.GetShaderProgram(), "samples"), samples);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "exposure"), exposure);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "decay"), decay);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "density"), density);
-	glUniform1f(glGetUniformLocation(shader_lighting.GetShaderProgram(), "weight"), weight);
+	shader_lighting.use_shader();
+	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.get_shader_program(), "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.get_shader_program(), "view"), 1, GL_FALSE, glm::value_ptr(m_view));
+	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.get_shader_program(), "model"), 1, GL_FALSE, glm::value_ptr(m_model));
+	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.get_shader_program(), "lightProjection"), 1, GL_FALSE, glm::value_ptr(light_projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader_lighting.get_shader_program(), "lightView"), 1, GL_FALSE, glm::value_ptr(light_view));
+	glUniform3fv(glGetUniformLocation(shader_lighting.get_shader_program(), "sunPosition"), 1, glm::value_ptr(sun_position));
+	glUniform3fv(glGetUniformLocation(shader_lighting.get_shader_program(), "lightPosition"), 1, glm::value_ptr(light_pos));
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "diffuseAmplitude"), wrapped_diffuse);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "de"), de);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "di"), di);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "fogUpperBound"), fog_upper_bound);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "fogLowerBound"), fog_lower_bound);
+	glUniform3fv(glGetUniformLocation(shader_lighting.get_shader_program(), "fogColor"), 1, glm::value_ptr(fog_color));
+	glUniform3fv(glGetUniformLocation(shader_lighting.get_shader_program(), "ambientColor"), 1, glm::value_ptr(ambient_color));
+	glUniform3fv(glGetUniformLocation(shader_lighting.get_shader_program(), "skyColor"), 1, glm::value_ptr(sky_color));
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "shininess"), specular_shininess);
+	glUniform1i(glGetUniformLocation(shader_lighting.get_shader_program(), "showSSAO"), show_ssao);
+	glUniform1i(glGetUniformLocation(shader_lighting.get_shader_program(), "samples"), samples);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "exposure"), exposure);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "decay"), decay);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "density"), density);
+	glUniform1f(glGetUniformLocation(shader_lighting.get_shader_program(), "weight"), weight);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, colorBuffer);
+	glBindTexture(GL_TEXTURE_2D, color_buffer);
 	glActiveTexture(GL_TEXTURE0 + 1);
-	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+	glBindTexture(GL_TEXTURE_2D, ssao_color_buffer_blur);
 	glActiveTexture(GL_TEXTURE0 + 2);
-	glBindTexture(GL_TEXTURE_2D, depthBuffer);
+	glBindTexture(GL_TEXTURE_2D, depth_buffer);
 	glActiveTexture(GL_TEXTURE0 + 3);
-	glBindTexture(GL_TEXTURE_2D, positionBuffer);
+	glBindTexture(GL_TEXTURE_2D, position_buffer);
 	glActiveTexture(GL_TEXTURE0 + 4);
-	glBindTexture(GL_TEXTURE_2D, occlusionBuffer);
-	Helpers::Draw::drawQuad();
+	glBindTexture(GL_TEXTURE_2D, occlusion_buffer);
+	Helpers::Draw::draw_quad();
 }
 
-void Terrain::RenderSun(const glm::mat4& projection, const glm::mat4& view)
+void Terrain::render_sun(const glm::mat4& m_projection, const glm::mat4& m_view)
 {
-	shader_normal.UseShader();
+	shader_normal.use_shader();
 	std::string path = "./Images/sphere/sphere.obj";
 	Model model(path);
 
 	glm::mat4 m = glm::mat4(1.0f);
-	m = glm::translate(m, lightPos);
+	m = glm::translate(m, light_pos);
 	m = glm::scale(m, glm::vec3(0.5f));
 
-	glUniformMatrix4fv(glGetUniformLocation(shader_normal.GetShaderProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(shader_normal.GetShaderProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shader_normal.GetShaderProgram(), "model"), 1, GL_FALSE, glm::value_ptr(m));
-	glUniform3fv(glGetUniformLocation(shader_normal.GetShaderProgram(), "lightColor"), 1, glm::value_ptr(volumeLightColor));
+	glUniformMatrix4fv(glGetUniformLocation(shader_normal.get_shader_program(), "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader_normal.get_shader_program(), "view"), 1, GL_FALSE, glm::value_ptr(m_view));
+	glUniformMatrix4fv(glGetUniformLocation(shader_normal.get_shader_program(), "model"), 1, GL_FALSE, glm::value_ptr(m));
+	glUniform3fv(glGetUniformLocation(shader_normal.get_shader_program(), "lightColor"), 1, glm::value_ptr(volume_light_color));
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	model.Draw(shader_normal);
+	model.draw(shader_normal);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
