@@ -57,7 +57,7 @@ git clone https://github.com/JThissen/J-Engine.git
 
 Next, run the solution (.sln) and build the project.
 
-### cmake
+## How to build (using cmake)
 
 Create a build folder in the JEngine directory (project directory) and change the current working directory to the newly created build folder:
 
