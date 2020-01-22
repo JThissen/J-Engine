@@ -79,7 +79,7 @@ Finally, run the generated solution (.sln) and build the project.
 
 ## .Exe
 
-Additionally, a stand-alone executable is included in the folder [executable](https://github.com/JThissen/J-Engine/tree/master/executable).
+Additionally, a stand-alone executable is included in the folder [executable](https://github.com/JThissen/J-Engine/tree/master/JEngine/executable).
 
 ## A bunch of helpful resources
 
